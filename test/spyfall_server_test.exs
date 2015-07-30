@@ -9,8 +9,8 @@ defmodule SpyfallServer do
     assert state.players == ["ned", "jon"]
   end
 
-  test "cant start a game with < 4 players" do
-    state = %{ players: ["a", "b"] }
+  test "can start a game with > 2 players" do
+    state = %{ players: ["a", "b", "c"] }
     { :ok, state } = SpyfallSlack.Server.start!(state)
     assert state.spy != nil
   end
