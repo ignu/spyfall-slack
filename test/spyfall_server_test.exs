@@ -14,4 +14,10 @@ defmodule SpyfallServer do
     { :ok, state } = SpyfallSlack.Server.start!(state)
     assert state.spy != nil
   end
+
+  test "can not start a game with < 3 players" do
+    state = %{ players: ["a", "b"] }
+    { :error, message, state } = SpyfallSlack.Server.start!(state)
+    assert message != nil
+  end
 end
