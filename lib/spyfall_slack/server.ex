@@ -22,7 +22,40 @@ defmodule SpyfallSlack.Server do
   end
 
   defp start_game(state, _valid) do
-    spy = "" #TODO, randomize spy out of players
-    { :ok, Dict.put(Dict.put(state, :spy, spy), :stage, :playing) }
+    :random.seed(:os.timestamp)
+
+    spy = state.players |> Enum.shuffle |> hd
+    location = locations |> Enum.shuffle |> hd
+
+    state = Dict.merge state, %{
+      spy: spy,
+      stage: :playing,
+      location: location }
+
+    { :ok, state }
+  end
+
+  defp locations do
+    [
+      "Submarine",
+      "Casino",
+      "Police Station",
+      "Shoping Mall Food Court",
+      "Airport",
+      "Elementary School",
+      "Prison",
+      "Bank",
+      "Theater",
+      "Pirate Ship",
+      "Passenger Train",
+      "Day Spa",
+      "Movie Studio",
+      "Ocean Liner",
+      "Beach",
+      "Restaurant",
+      "Space Station",
+      "Corporate Holiday Party",
+      "Supermarket"
+    ]
   end
 end
