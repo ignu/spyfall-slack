@@ -5,22 +5,34 @@ defmodule SpyfallSlack.Server do
     { :ok, %SpyfallSlack.Server{} }
   end
 
-  def add_player(_name, state =%{stage: :playing}) do
-    { :error, "You need more players!", state }
-  end
+  @doc """
+  Start the game. Once a game is started, roles and location are assigned
+  and you can no longer call add_player.
 
-  def add_player(name, state) do
-    { :ok, %{ players: state.players ++ [name] } }
-  end
-
+  A location is set randomly, as well as a spy from the list of players
+  """
   def start!(state) do
     start_game(state, Enum.count(state.players) > 2)
   end
 
+  def add_player(_name, state =%{stage: :playing}) do
+    { :error, "You need more players!", state }
+  end
+
+  @doc """
+  Add a player. Games must have three or more players. (Less than seven
+  is recommended"
+  """
+  def add_player(name, state) do
+    { :ok, %{ players: state.players ++ [name] } }
+  end
+
+  @doc "Return all non-spies"
   def agents(state) do
     { :ok, state.players -- [state.spy], state}
   end
 
+  @doc "Start a vote for a suspected spy. sets susepct in state."
   def accuse!(suspect, state) do
     accused = Enum.find(state.players, nil, fn p -> p == suspect end)
     accused |> start_accusation(state)
