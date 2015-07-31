@@ -21,7 +21,7 @@ defmodule SpyfallSlack.Server do
 
   @doc """
   Add a player. Games must have three or more players. (Less than seven
-  is recommended"
+  is recommended)"
   """
   def add_player(name, state) do
     { :ok, %{ players: state.players ++ [name] } }
@@ -40,8 +40,26 @@ defmodule SpyfallSlack.Server do
     start_accusation(fetch!(accuser, state), fetch!(suspect, state), state)
   end
 
+  def vote!(voter, value, state) do
+    vote(voter, value, state)
+  end
+
   defp fetch!(player, state) do
     Enum.find(state.players, nil, fn p -> p == player end)
+  end
+
+  defp vote(voter, false, state) do
+    state = state |> Dict.merge %{
+      stage: :playing,
+      accusers: [],
+      suspect: nil
+    }
+
+    { :ok, "#{voter} doesn't think #{state.suspect} is a spy. Resume playing.", state }
+  end
+
+  defp vote(voter, true, state) do
+    { :ok, "", state }
   end
 
   defp start_accusation(nil, _suspect, state) do
@@ -55,7 +73,7 @@ defmodule SpyfallSlack.Server do
   defp start_accusation(accuser, suspect, state) do
     state = Dict.put(state, :accusers, [accuser])
     state = Dict.put(state, :suspect, suspect)
-    { :ok, state }
+    { :ok, %{ state | stage: :accusing } }
   end
 
   defp start_game(state, false) do
