@@ -39,14 +39,15 @@ defmodule SpyfallSlack.ServerTest do
 
   test "accusing sets a suspect" do
     state = %{ players: ["a", "b", "c"], spy: "c", stage: :playing }
-    { :ok, state } = SpyfallSlack.Server.accuse!("a", state)
+    { :ok, state } = SpyfallSlack.Server.accuse!("b", "a", state)
     # ? assert state.stage == :voting
     assert state.suspect == "a"
+    assert state.accusers == ["b"]
   end
 
   test "error when accusing a non-player" do
     state = %{ players: ["a", "b", "c"], spy: "c", stage: :playing }
-    { :error, message, _state } = SpyfallSlack.Server.accuse!("x", state)
+    { :error, message, _state } = SpyfallSlack.Server.accuse!("a", "x", state)
 
     assert message != nil
   end

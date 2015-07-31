@@ -32,17 +32,28 @@ defmodule SpyfallSlack.Server do
     { :ok, state.players -- [state.spy], state}
   end
 
-  @doc "Start a vote for a suspected spy. sets susepct in state."
-  def accuse!(suspect, state) do
-    accused = Enum.find(state.players, nil, fn p -> p == suspect end)
-    accused |> start_accusation(state)
+  @doc """
+  Start a vote for a suspected spy.
+  Sets suspect in state and creates a list of accusers.
+  """
+  def accuse!(accuser, suspect, state) do
+    start_accusation(fetch!(accuser, state), fetch!(suspect, state), state)
   end
 
-  defp start_accusation(nil, state) do
+  defp fetch!(player, state) do
+    Enum.find(state.players, nil, fn p -> p == player end)
+  end
+
+  defp start_accusation(nil, _suspect, state) do
+    { :error, "Not a valid player", state }
+  end
+
+  defp start_accusation(_accuser, nil, state) do
     { :error, "You must accuse a valid player", state }
   end
 
-  defp start_accusation(suspect, state) do
+  defp start_accusation(accuser, suspect, state) do
+    state = Dict.put(state, :accusers, [accuser])
     state = Dict.put(state, :suspect, suspect)
     { :ok, state }
   end
