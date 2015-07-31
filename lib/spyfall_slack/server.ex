@@ -21,6 +21,20 @@ defmodule SpyfallSlack.Server do
     { :ok, state.players -- [state.spy], state}
   end
 
+  def accuse!(suspect, state) do
+    accused = Enum.find(state.players, nil, fn p -> p == suspect end)
+    accused |> start_accusation(state)
+  end
+
+  defp start_accusation(nil, state) do
+    { :error, "You must accuse a valid player", state }
+  end
+
+  defp start_accusation(suspect, state) do
+    state = Dict.put(state, :suspect, suspect)
+    { :ok, state }
+  end
+
   defp start_game(state, false) do
     { :error, "You need more players!", state }
   end
