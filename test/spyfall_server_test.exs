@@ -30,4 +30,10 @@ defmodule SpyfallServer do
     { :error, message, _state } = SpyfallSlack.Server.add_player('bill', state)
     assert message != nil
   end
+
+  test "can get a list of spies" do
+    state = %{ players: ["a", "b", "c"], spy: "c", stage: :playing }
+    { :ok, agents, state } = SpyfallSlack.Server.agents(state)
+    assert agents == ["a", "b"]
+  end
 end

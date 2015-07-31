@@ -17,6 +17,10 @@ defmodule SpyfallSlack.Server do
     start_game(state, Enum.count(state.players) > 2)
   end
 
+  def agents(state) do
+    { :ok, state.players -- [state.spy], state}
+  end
+
   defp start_game(state, false) do
     { :error, "You need more players!", state }
   end
