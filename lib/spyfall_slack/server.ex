@@ -11,7 +11,7 @@ defmodule SpyfallSlack.Server do
 
   A location is set randomly, as well as a spy from the list of players
   """
-  def start!(state) do
+  def start(state) do
     start_game(state, Enum.count(state.players) > 2)
   end
 
@@ -29,26 +29,26 @@ defmodule SpyfallSlack.Server do
 
   @doc "Return all non-spies"
   def agents(state) do
-    { :ok, state.players -- [state.spy], state}
+    state.players -- [state.spy]
   end
 
   @doc """
   Start a vote for a suspected spy.
   Sets suspect in state and creates a list of accusers.
   """
-  def accuse!(accuser, suspect, state) do
-    start_accusation(fetch!(accuser, state), fetch!(suspect, state), state)
+  def accuse(accuser, suspect, state) do
+    start_accusation(fetch(accuser, state), fetch(suspect, state), state)
   end
 
-  def vote!(voter, value, state) do
-    vote(voter, value, state)
+  def vote(voter, value, state) do
+    _vote(voter, value, state)
   end
 
-  defp fetch!(player, state) do
+  defp fetch(player, state) do
     Enum.find(state.players, nil, fn p -> p == player end)
   end
 
-  defp vote(voter, false, state) do
+  defp _vote(voter, false, state) do
     state = state |> Dict.merge %{
       stage: :playing,
       accusers: [],
@@ -58,7 +58,14 @@ defmodule SpyfallSlack.Server do
     { :ok, "#{voter} doesn't think #{state.suspect} is a spy. Resume playing.", state }
   end
 
-  defp vote(voter, true, state) do
+  defp _vote(voter, true, state) do
+    state = %{ state | accusers: state.accusers ++ [voter]}
+
+    # if all spies have guess correctly
+    if (agents(state) -- state.accusers) == [] do
+      state = %{ state | stage: :guess }
+    end
+
     { :ok, "", state }
   end
 

@@ -12,7 +12,7 @@ defmodule SpyfallSlack.ServerTest do
 
   test "can start a game with > 2 players" do
     state = %{ players: ["a", "b", "c"], stage: :started }
-    { :ok, state } = Server.start!(state)
+    { :ok, state } = Server.start(state)
     assert state.stage == :playing
 
     #TODO: mock random and do better test?
@@ -22,7 +22,7 @@ defmodule SpyfallSlack.ServerTest do
 
   test "can not start a game with < 3 players" do
     state = %{ players: ["a", "b"] }
-    { :error, message, _state } = Server.start!(state)
+    { :error, message, _state } = Server.start(state)
     assert message != nil
   end
 
@@ -34,13 +34,13 @@ defmodule SpyfallSlack.ServerTest do
 
   test "can get a list of spies" do
     state = %{ players: ["a", "b", "c"], spy: "c", stage: :playing }
-    { :ok, agents, _state } = Server.agents(state)
+    agents = Server.agents(state)
     assert agents == ["a", "b"]
   end
 
   test "accusing sets a suspect" do
     state = %{ players: ["a", "b", "c"], spy: "c", stage: :playing }
-    { :ok, state } = Server.accuse!("b", "a", state)
+    { :ok, state } = Server.accuse("b", "a", state)
     assert state.stage == :accusing
     assert state.suspect == "a"
     assert state.accusers == ["b"]
@@ -48,19 +48,23 @@ defmodule SpyfallSlack.ServerTest do
 
   test "error when accusing a non-player" do
     state = %{ players: ["a", "b", "c"], spy: "c", stage: :playing }
-    { :error, message, _state } = Server.accuse!("a", "x", state)
+    { :error, message, _state } = Server.accuse("a", "x", state)
 
     assert message != nil
   end
 
   test "players can vote true" do
-    state = %{ players: ["a", "b", "c"],
+    state = %{ players: ["a", "b", "c", "d"],
                spy: "c",
                suspect: "c",
                accusers: ["a"],
                stage: :accusing }
 
-    { :ok, message, state } = Server.vote!("b", true, state)
+    { :ok, _message, state } = Server.vote("d", true, state)
+    assert state.stage == :accusing
+
+    { :ok, _message, state } = Server.vote("b", true, state)
+    assert state.stage == :guess
   end
 
   test "players can vote false" do
@@ -70,11 +74,14 @@ defmodule SpyfallSlack.ServerTest do
                accusers: ["a"],
                stage: :accusing }
 
-    { :ok, message, state } = Server.vote!("b", false, state)
+    { :ok, _message, state } = Server.vote("b", false, state)
+
     assert state.stage == :playing
+    assert state.accusers == []
+    assert state.suspect == nil
   end
 
-  test "spy can not vote" do
+  test "accused can not vote" do
 
   end
 end
