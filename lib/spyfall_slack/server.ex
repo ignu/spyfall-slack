@@ -56,15 +56,18 @@ defmodule SpyfallSlack.Server do
   A spy's guess of the current location
   """
   def guess(location, state) do
-    if Enum.any? locations, &(&1 == location) do
-      _guess(location == state.location, state)
-    else
-      l = locations |> Enum.join(", ")
+    cond do
+      state.stage == :victory ->
+        { :error, "Too late. Game over.", state }
+      Enum.any? locations, &(&1 == location) ->
+        _guess(location == state.location, state)
+      true ->
+        l = locations |> Enum.join(", ")
 
-      { :error,
-        "'#{location}' is not an option. Guess one of [#{l}]",
-        %{ state | stage: :guess }
-      }
+        { :error,
+          "'#{location}' is not an option. Guess one of [#{l}]",
+          %{ state | stage: :guess }
+        }
     end
   end
 

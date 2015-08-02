@@ -132,4 +132,14 @@ defmodule SpyfallSlack.ServerTest do
     { :error, _message, state } = Server.guess("Tokyo", state)
     assert state.stage == :guess
   end
+
+  test "a spy can't guess after they lost the game" do
+    state = %{ players: ["a", "b", "c"],
+               spy: "c",
+               location: "Beach",
+               stage: :victory }
+
+    { _, _message, state } = Server.guess("Beach", state)
+    assert state.stage == :victory
+  end
 end
