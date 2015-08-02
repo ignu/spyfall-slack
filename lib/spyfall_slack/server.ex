@@ -41,7 +41,12 @@ defmodule SpyfallSlack.Server do
   end
 
   def vote(voter, value, state) do
-    _vote(voter, value, state)
+    cond do
+      voter == state.suspect ->
+        { :error, "#{voter} is the suspect and can not vote", state }
+      true ->
+        _vote(voter, value, state)
+    end
   end
 
   defp fetch(player, state) do
