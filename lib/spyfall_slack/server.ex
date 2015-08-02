@@ -80,7 +80,7 @@ defmodule SpyfallSlack.Server do
   end
 
   defp fetch(player, state) do
-    Enum.find(state.players, nil, fn p -> p == player end)
+    Enum.find(state.players, nil, &(&1 == player))
   end
 
   defp _vote(voter, false, state) do
