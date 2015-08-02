@@ -93,7 +93,16 @@ defmodule SpyfallSlack.ServerTest do
   end
 
   test "game is over if everyone votes for the wrong person" do
+    state = %{ players: ["a", "b", "c"],
+               spy: "c",
+               suspect: "b",
+               accusers: ["a"],
+               stage: :accusing }
+
+    { :ok, _message, state } = Server.vote("c", true, state)
+    assert state.stage == :loss
   end
+
   test "spy wins if they guess correctly" do
   end
   test "spy loses if they guess incorrectly" do

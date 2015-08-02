@@ -65,13 +65,23 @@ defmodule SpyfallSlack.Server do
 
   defp _vote(voter, true, state) do
     state = %{ state | accusers: state.accusers ++ [voter]}
+    agent_count = Enum.count(state.players) - 1
+    message = ""
 
-    # if all spies have guess correctly
-    if (agents(state) -- state.accusers) == [] do
-      state = %{ state | stage: :guess }
+    cond do
+      # if all spies have guessed correctly
+      (agents(state) -- state.accusers) == [] ->
+        state =  %{ state | stage: :guess }
+
+      # if all votes are for the wrong person
+      Enum.count(state.accusers) == agent_count ->
+        message = "Agents lose! #{state.spy} was actually the spy"
+        state = %{ state | stage: :loss }
+
+      true ->
     end
 
-    { :ok, "", state }
+    { :ok, message, state }
   end
 
   defp start_accusation(nil, _suspect, state) do
