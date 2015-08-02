@@ -142,4 +142,29 @@ defmodule SpyfallSlack.ServerTest do
     { _, _message, state } = Server.guess("Beach", state)
     assert state.stage == :victory
   end
+
+  test "Different endgame permutations - Integration Test" do
+    { :ok, s } = Server.init()
+    { :ok, s } = Server.add_player("Chief", s)
+    { :ok, s } = Server.add_player("Boomer", s)
+    { :ok, s } = Server.add_player("Starbuck", s)
+    { :ok, s } = Server.start(s)
+
+    # not so integraitony, but have to replace randomized bits
+    s = %{ s |  spy: "Boomer", location: "Bank" }
+
+    game_started_state = s
+
+    # Spy Victory
+    { :ok, s } = Server.accuse("Chief", "Starbuck", s)
+    { :ok, _message, s } = Server.vote("Boomer", true, s)
+    assert s.stage == :loss
+
+    # Spy Loss
+    { :ok, s } = Server.accuse("Chief", "Boomer", game_started_state)
+    { :ok, _message, s } = Server.vote("Starbuck", true, s)
+    assert s.stage == :guess
+    { :ok, _message, s } = Server.guess("Beach", s)
+    assert s.stage == :victory
+  end
 end
