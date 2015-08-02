@@ -40,6 +40,9 @@ defmodule SpyfallSlack.Server do
     start_accusation(fetch(accuser, state), fetch(suspect, state), state)
   end
 
+  @doc """
+  A vote for the current accused
+  """
   def vote(voter, value, state) do
     cond do
       voter == state.suspect ->
@@ -47,6 +50,30 @@ defmodule SpyfallSlack.Server do
       true ->
         _vote(voter, value, state)
     end
+  end
+
+  @doc """
+  A spy's guess of the current location
+  """
+  def guess(location, state) do
+    if Enum.any? locations, &(&1 == location) do
+      _guess(location == state.location, state)
+    else
+      l = locations |> Enum.join(", ")
+
+      { :error,
+        "'#{location}' is not an option. Guess one of [#{l}]",
+        %{ state | stage: :guess }
+      }
+    end
+  end
+
+  def _guess(true, s) do
+    { :ok, "", %{ s | stage: :loss } }
+  end
+
+  def _guess(false, s) do
+    { :ok, "", %{ s | stage: :victory } }
   end
 
   defp fetch(player, state) do
