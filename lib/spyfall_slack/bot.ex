@@ -4,20 +4,23 @@ defmodule SpyfallSlack.Bot do
 
   def start(_type, _args) do
     token = System.get_env("SLACK_BOT_API_TOKEN")
-    IO.puts IO.ANSI.underline <> "||||||||| CONNECTED........." <> IO.ANSI.reset
-    #pid = spawn(SpyfallSlack.Server, :init, {})
-    #initial_state = %{ pid: pid }
     initial_state = {}
     start_link(token, initial_state)
   end
 
   def handle_message(message = %{type: "message"}, slack, state) do
-    IO.puts IO.ANSI.underline <> "|||||||||||||" <> IO.ANSI.reset
-    IO.inspect state
+    user = get_username(message.user, slack)
 
-    send_message(String.upcase(message.text), message.channel, slack)
+    response = SpyfallSlack.Adapter.process(message, slack)
+
+    #TODO, don't send message when there's no response
+    send_message(response, message.channel, slack)
 
     {:ok, state}
+  end
+
+  defp get_username(id, slack) do
+    slack[:users][id].name
   end
 
   def handle_message(message, _slack, state) do
