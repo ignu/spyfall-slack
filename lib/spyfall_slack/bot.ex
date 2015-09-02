@@ -4,17 +4,17 @@ defmodule SpyfallSlack.Bot do
 
   def start(_type, _args) do
     token = System.get_env("SLACK_BOT_API_TOKEN")
-    initial_state = {}
+    initial_state = %{}
     start_link(token, initial_state)
   end
 
   def handle_message(message = %{type: "message"}, slack, state) do
     user = get_username(message.user, slack)
 
-    response = SpyfallSlack.Adapter.process(message, slack)
+    state = SpyfallSlack.Adapter.process(message, slack, state)
 
     #TODO, don't send message when there's no response
-    send_message(response, message.channel, slack)
+    send_message(state.response, message.channel, slack)
 
     {:ok, state}
   end
