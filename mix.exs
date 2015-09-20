@@ -14,9 +14,9 @@ defmodule SpyfallSlack.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [applications: [:logger]]
     #[applications: [:logger, :slack],
     # mod: {SpyfallSlack.Bot, []}]
+    [applications: [:logger]]
   end
 
   # Dependencies can be Hex packages:

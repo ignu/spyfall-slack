@@ -34,12 +34,12 @@ defmodule SpyfallSlackAdapterTest do
     assert "Starting game..." == state.response
   end
 
-  #test "starting a game that's already started" do
-  #  state = Adapter.process(%{ at_slackbot | text: "<@#{@bot_id}> start"}, slack(%{}), %{})
-  #  response = Adapter.process(%{ at_slackbot | text: "<@#{@bot_id}> start"}, slack(%{}), state)
+  test "starting a game that's already started" do
+    state = Adapter.process(%{ at_slackbot | text: "<@#{@bot_id}> start"}, slack(%{}), %{})
+    state = Adapter.process(%{ at_slackbot | text: "<@#{@bot_id}> start"}, slack(%{}), state)
 
-  #  assert "could not start game" == response
-  #end
+    assert "Game is already started." == state.response
+  end
 
   test "adding players" do
   end

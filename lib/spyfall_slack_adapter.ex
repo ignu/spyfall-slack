@@ -1,7 +1,6 @@
 defmodule SpyfallSlack.Adapter do
-  def process(message, slack, state) do
+  def process(message, slack, state), do:
     _process(at_slackbot?(message, slack), message, slack, state)
-  end
 
   defp _process(true, message, slack, state) do
     command = message_body(message[:text], slack)
@@ -12,8 +11,11 @@ defmodule SpyfallSlack.Adapter do
     Dict.merge state, %{response: nil }
   end
 
+  defp _run("start", %{started: true} = state), do:
+    Dict.merge(state, %{response: "Game is already started." })
+
   defp _run("start", state) do
-    Dict.merge state, %{response: "Starting game..." }
+    Dict.merge state, %{response: "Starting game...", started: true}
   end
 
   defp _run(command, state) do
