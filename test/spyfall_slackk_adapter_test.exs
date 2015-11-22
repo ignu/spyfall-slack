@@ -42,6 +42,9 @@ defmodule SpyfallSlackAdapterTest do
   end
 
   test "adding players" do
+    state = Adapter.process(%{ at_slackbot | text: "<@#{@bot_id}> join"}, slack(%{}), %{})
+
+    assert "ignu, you're in" == state.response
   end
 
   test "accuse a player" do

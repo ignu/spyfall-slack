@@ -18,6 +18,10 @@ defmodule SpyfallSlack.Adapter do
     Dict.merge state, %{response: "Starting game...", started: true}
   end
 
+  defp _run("join", state) do
+    Dict.merge state, %{response: "You're in", started: true}
+  end
+
   defp _run(command, state) do
     Dict.merge state, %{response: "Sorry, I couldn't understand `#{command}`" }
   end
