@@ -17,7 +17,11 @@ defmodule SpyfallSlack.Adapter do
     Dict.merge(state, %{response: "Game is already started." })
 
   defp _run("start", state) do
-    Dict.merge state, %{response: "Starting game...", started: true}
+    if Dict.size(state[:users]||[]) < 3 do
+      Dict.merge state, %{response: "We need at least three players to start a game." }
+    else
+      Dict.merge state, %{response: "Starting game...", started: true}
+    end
   end
 
   defp _run("join", state) do
