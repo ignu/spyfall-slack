@@ -1,4 +1,6 @@
 defmodule SpyfallSlack.Adapter do
+  alias SpyfallSlack.Server
+
   def process(message, slack, state), do:
     _process(at_slackbot?(message, slack), message, slack, state)
 
@@ -17,11 +19,15 @@ defmodule SpyfallSlack.Adapter do
     Dict.merge(state, %{response: "Game is already started." })
 
   defp _run("start", state) do
-    if Dict.size(state[:users]||[]) < 3 do
-      Dict.merge state, %{response: "We need at least three players to start a game." }
-    else
-      Dict.merge state, %{response: "Starting game...", started: true}
-    end
+    _run Server.start(state)
+  end
+
+  defp _run({:error, state}) do
+    Dict.merge(state, %{response: "Game is already started." })
+  end
+
+  defp _run({:ok, state}) do
+    Dict.merge(state, %{response: "Game is already started." })
   end
 
   defp _run("join", state) do

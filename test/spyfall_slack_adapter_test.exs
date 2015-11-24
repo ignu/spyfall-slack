@@ -46,6 +46,8 @@ defmodule SpyfallSlackAdapterTest do
     state = Adapter.process(at_slackbot("start"), slack, %{ users: many_users })
 
     assert "Starting game..." == state.response
+
+    assert state[:users][@me_id].role != nil
   end
 
   test "starting a game that's already started" do
@@ -72,7 +74,8 @@ defmodule SpyfallSlackAdapterTest do
   end
 
   test "accuse a player" do
-    #state = Adapter.process(%{ at_slackbot | text: "<@#{@bot_id}> join"}, slack(%{}), state)
+    #state = %{users: many_users, started: true}
+    #state = Adapter.process(at_slackbot("start"), slack, state)
   end
 
   test "accuse a non-player" do
