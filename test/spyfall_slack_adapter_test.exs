@@ -27,9 +27,9 @@ defmodule SpyfallSlackAdapterTest do
     }
   end
 
-  def at_slackbot(message \\ %{}) do
-    %{channel: "C08BDN6R2", team: "T08BDN6P6", text: "<@#{@bot_id}> hi",
-      ts: "1438664826.000027", type: "message", user: @me_id} |> Dict.merge(message)
+  def at_slackbot(message) when is_binary(message) do
+    %{channel: "C08BDN6R2", team: "T08BDN6P6", text: "<@#{@bot_id}> #{message}",
+      ts: "1438664826.000027", type: "message", user: @me_id}
   end
 
   test "a nil message is a passthrough" do
@@ -38,35 +38,35 @@ defmodule SpyfallSlackAdapterTest do
   end
 
   test "an un-understood message to the bot gets a response" do
-    state = Adapter.process(at_slackbot, slack(%{}), %{})
+    state = Adapter.process(at_slackbot("hi"), slack(%{}), %{})
     assert "Sorry, I couldn't understand `hi`" == state.response
   end
 
   test "starting a game" do
-    state = Adapter.process(%{ at_slackbot | text: "<@#{@bot_id}> start"}, slack(%{}), %{ users: many_users })
+    state = Adapter.process(at_slackbot("start"), slack(%{}), %{ users: many_users })
 
     assert "Starting game..." == state.response
   end
 
   test "starting a game that's already started" do
-    state = Adapter.process(%{ at_slackbot | text: "<@#{@bot_id}> start"}, slack(%{}), %{users: many_users})
-    state = Adapter.process(%{ at_slackbot | text: "<@#{@bot_id}> start"}, slack(%{}), state)
+    state = Adapter.process(at_slackbot("start"), slack(%{}), %{users: many_users})
+    state = Adapter.process(at_slackbot("start"), slack(%{}), state)
 
     assert "Game is already started." == state.response
   end
 
   test "starting a game without enough players" do
-    state = Adapter.process(%{ at_slackbot | text: "<@#{@bot_id}> start"}, slack(%{}), %{})
+    state = Adapter.process(at_slackbot("start"), slack(%{}), %{})
 
     assert "We need at least three players to start a game." == state.response
   end
 
   test "adding players" do
-    state = Adapter.process(%{ at_slackbot | text: "<@#{@bot_id}> join"}, slack(%{}), %{})
+    state = Adapter.process(at_slackbot("join"), slack(%{}), %{})
 
     assert "ignu, you're in." == state.response
 
-    state = Adapter.process(%{ at_slackbot | text: "<@#{@bot_id}> join"}, slack(%{}), state)
+    state = Adapter.process(at_slackbot("join"), slack(%{}), state)
 
     assert "yes, ignu, you're already in!" == state.response
   end
