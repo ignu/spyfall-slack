@@ -4,7 +4,8 @@ defmodule SpyfallSlack.Adapter do
 
   defp _process(true, message, slack, state) do
     command = message_body(message[:text], slack)
-    state = Dict.merge state, %{response: nil, message: message, slack: slack }
+    user = user_name(message[:user], slack)
+    state = Dict.merge state, %{response: nil, user: user }
     _run(command, state)
   end
 
@@ -20,12 +21,23 @@ defmodule SpyfallSlack.Adapter do
   end
 
   defp _run("join", state) do
-    user = user_name(state[:message][:user], state[:slack])
-    Dict.merge state, %{response: "#{user}, you're in", started: true}
+    user = state[:user]
+    found_user = state[:users][user]
+    _add_user(user, found_user, state)
   end
 
   defp _run(command, state) do
     Dict.merge state, %{response: "Sorry, I couldn't understand `#{command}`" }
+  end
+
+  defp _add_user(user, nil, state) do
+    users = state[:users] || %{}
+    users = Dict.put users, user, %{}
+    Dict.merge state, %{response: "#{user}, you're in.", users: users}
+  end
+
+  defp _add_user(user, found_user, state) do
+    Dict.merge state, %{response: "yes, #{user}, you're already in!", started: true}
   end
 
   defp message_body(message, slack) do
