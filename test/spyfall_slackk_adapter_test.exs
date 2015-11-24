@@ -3,19 +3,21 @@ defmodule SpyfallSlackAdapterTest do
   alias SpyfallSlack.Adapter
 
   @bot_id "U08BMDLQ4"
+  @me_id "U08BDN6Q4"
 
   def slack(overrides) do
     %{
       me: %{ id: @bot_id },
       users: %{
-        @bot_id => %{ id: @bot_id, name: "ignu" }
+        @bot_id => %{ id: @bot_id, name: "spyfall" },
+        @me_id => %{ id: @me_id, name: "ignu" }
       }
     } |> Dict.merge(overrides)
   end
 
   def at_slackbot(message \\ %{}) do
     %{channel: "C08BDN6R2", team: "T08BDN6P6", text: "<@#{@bot_id}> hi",
-      ts: "1438664826.000027", type: "message", user: "U08BDN6Q4"} |> Dict.merge(message)
+      ts: "1438664826.000027", type: "message", user: @me_id} |> Dict.merge(message)
   end
 
   test "a nil message is a passthrough" do

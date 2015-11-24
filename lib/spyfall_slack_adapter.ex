@@ -4,6 +4,7 @@ defmodule SpyfallSlack.Adapter do
 
   defp _process(true, message, slack, state) do
     command = message_body(message[:text], slack)
+    state = Dict.merge state, %{response: nil, message: message, slack: slack }
     _run(command, state)
   end
 
@@ -19,7 +20,8 @@ defmodule SpyfallSlack.Adapter do
   end
 
   defp _run("join", state) do
-    Dict.merge state, %{response: "You're in", started: true}
+    user = user_name(state[:message][:user], state[:slack])
+    Dict.merge state, %{response: "#{user}, you're in", started: true}
   end
 
   defp _run(command, state) do
@@ -33,6 +35,10 @@ defmodule SpyfallSlack.Adapter do
   defp at_slackbot?(message, slack) do
     text = message[:text]
     Regex.match?(bot_regex(slack), text)
+  end
+
+  defp user_name(user_id, slack) do
+    slack[:users][user_id][:name]
   end
 
   defp bot_regex(slack) do
